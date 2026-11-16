@@ -1,0 +1,20 @@
+Basic Block 0: succs { 1 }
+  <bb 2>:
+  x = 1
+
+Basic Block 1: succs { 2 }
+  <bb 3>:
+
+Basic Block 2: succs { 5 3 }
+  <bb 4>:
+  if x > 0 goto <bb 6>
+
+Basic Block 3: succs { 4 }
+  goto <bb 5>
+
+Basic Block 4: succs { 4 }
+  <bb 5>:
+  goto <bb 5>
+
+Basic Block 5: succs { }
+  <bb 6>:

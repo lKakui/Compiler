@@ -1,0 +1,11 @@
+LB000:
+	T000 = 0
+LB001:
+	if T000 < 10 goto LB002
+	goto LB003
+LB002:
+	T001 = T000+1
+	T000 = T001
+	goto LB001
+LB003:
+	x = T000

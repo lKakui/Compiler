@@ -1,0 +1,13 @@
+<bb 2>:
+i = 0
+<bb 3>:
+limit=10
+<bb 4>:
+if i < limit goto bb6
+goto bb7;
+<bb 6>:
+t = a+b
+i = i + 1
+goto bb4
+<bb 7>:
+x = t

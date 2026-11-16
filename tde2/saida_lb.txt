@@ -1,0 +1,20 @@
+Basic Block 0: succs { 1 }
+  LB000:
+  T000 = 0
+
+Basic Block 1: succs { 3 2 }
+  LB001:
+  if T000 < 10 goto LB002
+
+Basic Block 2: succs { 4 }
+  goto LB003
+
+Basic Block 3: succs { 1 }
+  LB002:
+  T001 = T000+1
+  T000 = T001
+  goto LB001
+
+Basic Block 4: succs { }
+  LB003:
+  x = T000

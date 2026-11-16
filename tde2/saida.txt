@@ -1,0 +1,24 @@
+Basic Block 0: succs { 1 }
+  <bb 2>:
+  i = 0
+
+Basic Block 1: succs { 2 }
+  <bb 3>:
+  limit=10
+
+Basic Block 2: succs { 4 3 }
+  <bb 4>:
+  if i < limit goto bb6
+
+Basic Block 3: succs { 5 }
+  goto bb7;
+
+Basic Block 4: succs { 2 }
+  <bb 6>:
+  t = a+b
+  i = i + 1
+  goto bb4
+
+Basic Block 5: succs { }
+  <bb 7>:
+  x = t

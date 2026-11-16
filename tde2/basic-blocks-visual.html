@@ -1,0 +1,585 @@
+<title>Blocos Básicos na Prática</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Plano: tinta fria + uma cor por bloco; Bitter nos títulos, IBM Plex Sans no texto,
+     IBM Plex Mono no código; coluna única centrada com listagem anotada, cartões e CFG. */
+  :root{
+    --bg:#f5f6f8;
+    --surface:#ffffff;
+    --surface-2:#eceff4;
+    --fg:#171a21;
+    --muted:#5a6472;
+    --line:#d9dee7;
+    --accent:#0f766e;
+    --accent-soft:#d8efec;
+    --b0:#5b6577;
+    --b1:#0e7490;
+    --b2:#b45309;
+    --b3:#7c3aed;
+    --b4:#be123c;
+    --font-display:"Bitter",Georgia,"Times New Roman",serif;
+    --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1218;
+      --surface:#171c24;
+      --surface-2:#1e2530;
+      --fg:#e8ecf2;
+      --muted:#9aa6b6;
+      --line:#2b3441;
+      --accent:#5eead4;
+      --accent-soft:#143a37;
+      --b0:#94a3b8;
+      --b1:#67e8f9;
+      --b2:#fbbf24;
+      --b3:#c4b5fd;
+      --b4:#fda4af;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1218;
+    --surface:#171c24;
+    --surface-2:#1e2530;
+    --fg:#e8ecf2;
+    --muted:#9aa6b6;
+    --line:#2b3441;
+    --accent:#5eead4;
+    --accent-soft:#143a37;
+    --b0:#94a3b8;
+    --b1:#67e8f9;
+    --b2:#fbbf24;
+    --b3:#c4b5fd;
+    --b4:#fda4af;
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--font-body);
+    font-size:1rem;
+    line-height:1.65;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));
+    padding-block:0 64px;
+  }
+  .page{
+    max-width:920px;
+    margin:0 auto;
+    padding-block:48px 0;
+    display:flex;
+    flex-direction:column;
+    gap:60px;
+  }
+  .hero{display:flex;flex-direction:column;gap:18px}
+  .eyebrow{
+    margin:0;
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  h1{
+    margin:0;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(2.1rem,5vw,3.2rem);
+    line-height:1.08;
+    letter-spacing:-.02em;
+    text-wrap:balance;
+  }
+  .lede{
+    margin:0;
+    max-width:62ch;
+    font-size:1.05rem;
+    color:var(--muted);
+  }
+  .rules{
+    list-style:none;
+    margin:.35rem 0 0;
+    padding:0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .rules li{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:.35rem .7rem .35rem .4rem;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background:var(--surface);
+    font-size:.8rem;
+    color:var(--fg);
+  }
+  .rules b{
+    display:grid;
+    place-items:center;
+    width:1.5rem;
+    height:1.5rem;
+    border-radius:50%;
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    font-weight:600;
+  }
+  main{display:flex;flex-direction:column;gap:60px}
+  .section{display:flex;flex-direction:column;gap:20px}
+  h2{
+    margin:0;
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(1.35rem,2.6vw,1.7rem);
+    line-height:1.2;
+    letter-spacing:-.01em;
+    text-wrap:balance;
+  }
+  .section > p{margin:0;max-width:68ch}
+  .section > p code,
+  .note code,
+  .edgecases code,
+  .lede code,
+  footer code{
+    font-family:var(--font-mono);
+    font-size:.86em;
+    background:var(--surface-2);
+    padding:.08em .35em;
+    border-radius:5px;
+  }
+
+  /* listagem anotada */
+  .listing{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow-x:auto;
+    font-family:var(--font-mono);
+    font-size:.86rem;
+    line-height:1.55;
+    padding:6px 0;
+    box-shadow:0 1px 2px rgba(0,0,0,.03);
+  }
+  .line{
+    display:grid;
+    grid-template-columns:2.6rem minmax(0,1fr) auto;
+    gap:.9rem;
+    align-items:baseline;
+    padding:.3rem .95rem .3rem .4rem;
+    border-left:3px solid transparent;
+  }
+  .listing.plain .line{grid-template-columns:2.6rem minmax(0,1fr)}
+  .line.leader{
+    background:color-mix(in srgb,var(--accent) 7%,var(--surface));
+    border-left-color:var(--accent);
+  }
+  .ln{
+    color:var(--muted);
+    font-size:.75rem;
+    text-align:right;
+    user-select:none;
+  }
+  .code{white-space:pre;min-width:0}
+  .why{
+    font-size:.66rem;
+    color:var(--accent);
+    background:var(--accent-soft);
+    border-radius:999px;
+    padding:.12rem .55rem;
+    white-space:nowrap;
+    justify-self:end;
+  }
+  .why:empty{display:none}
+  @media (max-width:640px){
+    .line{grid-template-columns:2.2rem minmax(0,1fr);row-gap:.15rem}
+    .why{grid-column:2;justify-self:start;white-space:normal}
+  }
+  .note{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+  .note p{margin:0;font-size:.92rem;max-width:68ch}
+  .note strong{color:var(--accent)}
+
+  /* blocos */
+  .blocks{display:flex;flex-direction:column;gap:12px}
+  .blk{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-left:4px solid var(--c);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .blk header{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    padding:.5rem 1rem;
+    background:color-mix(in srgb,var(--c) 8%,var(--surface));
+  }
+  .blk-id{
+    font-family:var(--font-mono);
+    font-weight:600;
+    font-size:.85rem;
+    color:var(--c);
+  }
+  .blk-range{
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    color:var(--muted);
+  }
+  .blk pre{
+    margin:0;
+    padding:.7rem 1rem;
+    overflow-x:auto;
+    font-family:var(--font-mono);
+    font-size:.85rem;
+    line-height:1.6;
+  }
+  .lbl{color:var(--c);font-weight:600}
+  .b0{--c:var(--b0)}
+  .b1{--c:var(--b1)}
+  .b2{--c:var(--b2)}
+  .b3{--c:var(--b3)}
+  .b4{--c:var(--b4)}
+
+  /* tabela */
+  .tablewrap{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow-x:auto;
+  }
+  table{border-collapse:collapse;width:100%;min-width:600px;font-size:.88rem}
+  th,td{
+    text-align:left;
+    padding:.6rem .9rem;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  th{
+    font-size:.7rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-weight:600;
+    background:var(--surface-2);
+  }
+  tr:last-child td{border-bottom:none}
+  td code{
+    font-family:var(--font-mono);
+    font-size:.82rem;
+    background:var(--surface-2);
+    padding:.1rem .35rem;
+    border-radius:5px;
+  }
+  .succ{font-family:var(--font-mono);font-weight:600;color:var(--accent)}
+
+  /* diagrama */
+  .diagram{margin:0;display:flex;flex-direction:column;gap:12px}
+  .diagram svg{
+    width:100%;
+    max-width:520px;
+    height:auto;
+    display:block;
+    margin-inline:auto;
+    color:var(--fg);
+  }
+  .diagram figcaption{
+    max-width:54ch;
+    margin-inline:auto;
+    text-align:center;
+    font-size:.8rem;
+    color:var(--muted);
+  }
+  .edge{stroke:currentColor;stroke-width:1.6;fill:none}
+  .edge.back{stroke:var(--b3);stroke-dasharray:5 4}
+  #ah path{fill:currentColor}
+  #ah-back path{fill:var(--b3)}
+  .elabel{
+    font-family:var(--font-mono);
+    font-size:11px;
+    fill:var(--muted);
+    paint-order:stroke;
+    stroke:var(--bg);
+    stroke-width:4px;
+    stroke-linejoin:round;
+  }
+  .elabel.mid{text-anchor:middle}
+  .node rect{
+    fill:color-mix(in srgb,var(--c) 10%,var(--surface));
+    stroke:var(--c);
+    stroke-width:1.5;
+  }
+  .node .nid{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    fill:var(--c);
+    text-anchor:middle;
+  }
+  .node .nsub{
+    font-family:var(--font-mono);
+    font-size:11px;
+    fill:var(--fg);
+    text-anchor:middle;
+  }
+  .n0{--c:var(--b0)}
+  .n1{--c:var(--b1)}
+  .n2{--c:var(--b2)}
+  .n3{--c:var(--b3)}
+  .n4{--c:var(--b4)}
+
+  /* saída */
+  .output{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .output .bar{
+    padding:.5rem .9rem;
+    border-bottom:1px solid var(--line);
+    background:var(--surface-2);
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    color:var(--muted);
+  }
+  .output pre{
+    margin:0;
+    padding:14px 16px;
+    overflow-x:auto;
+    font-family:var(--font-mono);
+    font-size:.85rem;
+    line-height:1.7;
+  }
+
+  /* casos */
+  .edgecases{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-width:72ch;
+  }
+  .edgecases li{
+    position:relative;
+    padding-left:1.4rem;
+    font-size:.92rem;
+  }
+  .edgecases li::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:.6em;
+    width:7px;
+    height:7px;
+    border-radius:2px;
+    background:var(--accent);
+  }
+  footer{
+    border-top:1px solid var(--line);
+    padding-top:20px;
+    font-size:.82rem;
+    color:var(--muted);
+    max-width:72ch;
+  }
+</style>
+
+<div class="page">
+  <header class="hero">
+    <p class="eyebrow">Compiladores · TDE2</p>
+    <h1>Do código ao grafo</h1>
+    <p class="lede">Um laço <code>while</code> em dez linhas, anotado passo a passo: por que cada linha vira líder, onde os blocos começam e terminam, e como os sucessores são decididos.</p>
+    <ul class="rules" aria-label="As três regras de líder">
+      <li><b>1</b> primeira instrução do programa</li>
+      <li><b>2</b> alvo de desvio (label)</li>
+      <li><b>3</b> logo depois de um desvio</li>
+    </ul>
+  </header>
+
+  <main>
+    <section class="section" aria-labelledby="s1">
+      <h2 id="s1">O código de três endereços</h2>
+      <p>Cada linha é uma instrução com no máximo três endereços. <code>L1</code>, <code>L2</code> e <code>L4</code> são labels: nomes de posições usados como alvo de desvio.</p>
+      <div class="listing plain" role="group" aria-label="Código de três endereços do exemplo">
+        <div class="line"><span class="ln">1</span><code class="code">i = 0</code></div>
+        <div class="line"><span class="ln">2</span><code class="code">L1:</code></div>
+        <div class="line"><span class="ln">3</span><code class="code">if i &lt; 10 goto L2</code></div>
+        <div class="line"><span class="ln">4</span><code class="code">goto L4</code></div>
+        <div class="line"><span class="ln">5</span><code class="code">L2:</code></div>
+        <div class="line"><span class="ln">6</span><code class="code">t = a + b</code></div>
+        <div class="line"><span class="ln">7</span><code class="code">i = i + 1</code></div>
+        <div class="line"><span class="ln">8</span><code class="code">goto L1</code></div>
+        <div class="line"><span class="ln">9</span><code class="code">L4:</code></div>
+        <div class="line"><span class="ln">10</span><code class="code">x = t</code></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="s2">
+      <h2 id="s2">Passo 1 · marcar os líderes</h2>
+      <p>Um bloco sempre começa em um líder. As linhas destacadas abaixo são líderes; o rótulo à direita diz qual regra se aplicou.</p>
+      <div class="listing" role="group" aria-label="Código com os líderes marcados">
+        <div class="line leader"><span class="ln">1</span><code class="code">i = 0</code><span class="why">regra 1 · primeira instrução</span></div>
+        <div class="line leader"><span class="ln">2</span><code class="code">L1:</code><span class="why">regra 2 · label / alvo</span></div>
+        <div class="line"><span class="ln">3</span><code class="code">if i &lt; 10 goto L2</code><span class="why"></span></div>
+        <div class="line leader"><span class="ln">4</span><code class="code">goto L4</code><span class="why">regra 3 · após o if</span></div>
+        <div class="line leader"><span class="ln">5</span><code class="code">L2:</code><span class="why">regra 2 · label / alvo</span></div>
+        <div class="line leader"><span class="ln">6</span><code class="code">t = a + b</code><span class="why">regra 3 · após goto L4</span></div>
+        <div class="line"><span class="ln">7</span><code class="code">i = i + 1</code><span class="why"></span></div>
+        <div class="line"><span class="ln">8</span><code class="code">goto L1</code><span class="why"></span></div>
+        <div class="line leader"><span class="ln">9</span><code class="code">L4:</code><span class="why">regra 2 · label / alvo</span></div>
+        <div class="line leader"><span class="ln">10</span><code class="code">x = t</code><span class="why">regra 3 · após goto L1</span></div>
+      </div>
+      <div class="note">
+        <p><strong>Duas confusões comuns.</strong> Na linha 8, <code>goto L1</code> é um desvio, mas <em>não</em> é líder: a regra 3 fala da instrução que vem <em>depois</em> de um desvio. Quem é líder por causa dele é <code>x = t</code>, na linha 10. E quando um label e a instrução seguinte ocupam a mesma posição — <code>L2</code> e <code>t = a + b</code> — existe <strong>um</strong> líder, não dois.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="s3">
+      <h2 id="s3">Passo 2 · cortar nos líderes</h2>
+      <p>O bloco vai do seu líder até a linha anterior ao próximo líder. O label vira o cabeçalho do bloco: ele marca a posição, mas não é uma instrução que se executa.</p>
+      <div class="blocks">
+        <article class="blk b0">
+          <header><span class="blk-id">B0</span><span class="blk-range">linha 1</span></header>
+          <pre><code>i = 0</code></pre>
+        </article>
+        <article class="blk b1">
+          <header><span class="blk-id">B1</span><span class="blk-range">linhas 2–3</span></header>
+          <pre><code><span class="lbl">L1:</span>
+if i &lt; 10 goto L2</code></pre>
+        </article>
+        <article class="blk b2">
+          <header><span class="blk-id">B2</span><span class="blk-range">linha 4</span></header>
+          <pre><code>goto L4</code></pre>
+        </article>
+        <article class="blk b3">
+          <header><span class="blk-id">B3</span><span class="blk-range">linhas 5–8</span></header>
+          <pre><code><span class="lbl">L2:</span>
+t = a + b
+i = i + 1
+goto L1</code></pre>
+        </article>
+        <article class="blk b4">
+          <header><span class="blk-id">B4</span><span class="blk-range">linhas 9–10</span></header>
+          <pre><code><span class="lbl">L4:</span>
+x = t</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="s4">
+      <h2 id="s4">Passo 3 · olhar a última instrução</h2>
+      <p>Para achar os sucessores, só a última instrução do bloco importa. O que acontece no meio já está resolvido dentro do próprio bloco.</p>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>Bloco</th><th>Última instrução</th><th>Sucessores</th><th>Por quê</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>B0</strong></td><td><code>i = 0</code></td><td class="succ">B1</td><td>não termina em desvio: segue para o próximo bloco</td></tr>
+            <tr><td><strong>B1</strong></td><td><code>if i &lt; 10 goto L2</code></td><td class="succ">B3, B2</td><td>alvo do desvio (<code>L2</code>) + fall-through</td></tr>
+            <tr><td><strong>B2</strong></td><td><code>goto L4</code></td><td class="succ">B4</td><td>desvio incondicional</td></tr>
+            <tr><td><strong>B3</strong></td><td><code>goto L1</code></td><td class="succ">B1</td><td>desvio incondicional: aresta de retorno</td></tr>
+            <tr><td><strong>B4</strong></td><td><code>x = t</code></td><td class="succ">—</td><td>fim do fluxo, nenhum sucessor</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <figure class="diagram">
+        <svg viewBox="0 0 520 470" role="img" aria-label="Grafo de fluxo de controle do exemplo: B0 vai para B1; B1 desvia para B3 ou cai em B2; B2 vai para B4; B3 volta para B1.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,0 L10,5 L0,10 Z"/>
+            </marker>
+            <marker id="ah-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,0 L10,5 L0,10 Z"/>
+            </marker>
+          </defs>
+
+          <line class="edge" x1="260" y1="76" x2="260" y2="112" marker-end="url(#ah)"/>
+          <line class="edge" x1="260" y1="174" x2="124" y2="258" marker-end="url(#ah)"/>
+          <line class="edge" x1="260" y1="174" x2="396" y2="258" marker-end="url(#ah)"/>
+          <line class="edge" x1="396" y1="320" x2="396" y2="382" marker-end="url(#ah)"/>
+          <polyline class="edge back" points="36,289 16,289 16,143 172,143" marker-end="url(#ah-back)" fill="none"/>
+
+          <text class="elabel" x="270" y="100">sequência</text>
+          <text class="elabel mid" x="192" y="220">alvo (L2)</text>
+          <text class="elabel mid" x="328" y="220">fall-through</text>
+          <text class="elabel" x="406" y="355">goto L4</text>
+          <text class="elabel" x="24" y="136">goto L1 (volta)</text>
+
+          <g class="node n0">
+            <rect x="172" y="14" width="176" height="62" rx="10"/>
+            <text class="nid" x="260" y="40">B0</text>
+            <text class="nsub" x="260" y="60">i = 0</text>
+          </g>
+          <g class="node n1">
+            <rect x="172" y="112" width="176" height="62" rx="10"/>
+            <text class="nid" x="260" y="138">B1</text>
+            <text class="nsub" x="260" y="158">if i &lt; 10 goto L2</text>
+          </g>
+          <g class="node n3">
+            <rect x="36" y="258" width="176" height="62" rx="10"/>
+            <text class="nid" x="124" y="284">B3</text>
+            <text class="nsub" x="124" y="304">goto L1</text>
+          </g>
+          <g class="node n2">
+            <rect x="308" y="258" width="176" height="62" rx="10"/>
+            <text class="nid" x="396" y="284">B2</text>
+            <text class="nsub" x="396" y="304">goto L4</text>
+          </g>
+          <g class="node n4">
+            <rect x="308" y="382" width="176" height="62" rx="10"/>
+            <text class="nid" x="396" y="408">B4</text>
+            <text class="nsub" x="396" y="428">x = t</text>
+          </g>
+        </svg>
+        <figcaption>O CFG do exemplo. A aresta tracejada B3 → B1 é uma aresta de retorno: é ela que fecha o laço do <code>while</code>.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section" aria-labelledby="s5">
+      <h2 id="s5">A saída do TDE2</h2>
+      <p>Com os sucessores calculados, a saída para o arquivo fica assim. A ordem dos números dentro de <code>{ }</code> não importa — o enunciado aceita pequenas variações.</p>
+      <div class="output">
+        <div class="bar">saida.txt</div>
+        <pre>Bloco 0: succs { 1 }
+Bloco 1: succs { 3 2 }
+Bloco 2: succs { 4 }
+Bloco 3: succs { 1 }
+Bloco 4: succs { }</pre>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="s6">
+      <h2 id="s6">Casos que quebram a cabeça</h2>
+      <ul class="edgecases">
+        <li><strong>Dois labels seguidos.</strong> O segundo também é líder, então pode nascer um bloco vazio entre eles. Decida se imprime e documente.</li>
+        <li><strong><code>if</code> como última instrução do arquivo.</strong> Não existe fall-through: o bloco tem um sucessor só, o alvo do desvio.</li>
+        <li><strong>Label no fim, sem instrução.</strong> É um bloco vazio. O mesmo vale para o label inicial sozinho.</li>
+        <li><strong>Desvio para label inexistente.</strong> Trate como erro do arquivo de entrada, não como um bloco 0 silencioso.</li>
+        <li><strong>Fim de bloco sem desvio.</strong> Cai no bloco seguinte, que é justamente o próximo líder.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    Os nomes B0…B4 são didáticos. No seu parser, o ID do bloco pode ser o número do label (<code>&lt;bb 4&gt;</code>) ou uma numeração sequencial — o que não pode faltar é o mapa <code>label → bloco</code> para resolver os alvos dos desvios.
+  </footer>
+</div>
